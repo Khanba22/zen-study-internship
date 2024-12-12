@@ -1,18 +1,16 @@
-"use client"
-import Button from "@/UI/Button";
+"use client";
+
 import { Playlist } from "@/UI/PlayList";
 import { UploadButton } from "@/UI/UploadButton";
 import { UploadPopup } from "@/UI/UploadPopUp";
-import { VideoInfo } from "@/UI/VideoInfo";
-import { VideoPlayer } from "@/UI/VideoPlayer";
+import WideVinePlayer from "@/UI/WideWirePlayer";
 import { useCallback, useState } from "react";
-
 
 export default function YouTubePlayer() {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [currentVideoId, setCurrentVideoId] = useState("initial-video-id");
   const [isPlaying, setIsPlaying] = useState(false);
-  
+
   const handleVideoSelect = useCallback((videoId) => {
     setCurrentVideoId(videoId);
     setIsPlaying(true);
@@ -46,13 +44,10 @@ export default function YouTubePlayer() {
 
   return (
     <div className="flex flex-col lg:flex-row scrollbar-hide overflow-clip h-screen bg-black text-white">
-      <div className="flex-1 w-full lg:px-10 lg:py-2 flex h-full flex-col">
-        <VideoPlayer
-          videoUrl={"https://drive.google.com/file/d/1ZyGSKPbPXapZY501D88s9pJ4mP4sWY-9/view?usp=drive_link"}
-          isPlaying={isPlaying}
-          onPlayPause={togglePlayPause}
-        />
-        <VideoInfo />
+      <div className="flex-1 pt-2 px-1 w-full lg:px-10 lg:py-8 flex h-full flex-col">
+        <div className="relative aspect-video h-auto bg-gray-950">
+          <WideVinePlayer manifestUrl={currentVideoId} />
+        </div>
       </div>
       <Playlist onVideoSelect={handleVideoSelect} />
       <UploadButton onClick={() => setShowUploadPopup(true)} />
