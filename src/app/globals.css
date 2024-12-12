@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #171717;
+  --foreground: #ffffff;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -14,13 +14,14 @@
   -ms-overflow-style: none; /* Internet Explorer 10+ */
   scrollbar-width: none; /* Firefox */
 }
-html,body,:root {
+html,
+body,
+:root {
   height: 100%;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 
 body {
   color: var(--foreground);
