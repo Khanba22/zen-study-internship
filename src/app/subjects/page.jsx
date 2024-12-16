@@ -1,7 +1,9 @@
+'use client'
 import Card from "@/UI/Card";
 import React from "react";
 
 const page = () => {
+
   return (
     <div className="container lg:pt-24 pt-8 mx-auto p-6 text-gray-100 flex flex-col h-screen">
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-100">

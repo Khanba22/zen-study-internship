@@ -1,13 +1,17 @@
+"use client";
+import { useRouter } from "next/navigation";
 import React from "react";
 
-const Card = ({
-  bannerImgSrc,
-  educatorName,
-  courseName,
-  courseType,
-}) => {
+const Card = ({ bannerImgSrc, educatorName, courseName, courseType }) => {
+  const router = useRouter();
+
   return (
-    <div className="flex lg:flex-col h-full bg-[#1f1f1f] rounded-lg shadow-md overflow-hidden w-full border border-neutral-700">
+    <div
+      onClick={() => {
+        router.push(`/subjects/${courseName}`)
+      }}
+      className="flex lg:flex-col h-full bg-[#1f1f1f] rounded-lg cursor-pointer shadow-md overflow-hidden w-full border border-neutral-700"
+    >
       <div className="relative lg:h-1/2 h-full aspect-square">
         <img
           src={bannerImgSrc}
