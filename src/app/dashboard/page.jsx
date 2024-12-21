@@ -13,13 +13,13 @@ const Page = () => {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     setText("Loading courses...");
     fetch("/api/courses")
       .then((response) => response.json())
       .then((data) => {
         setSelectedCourse(data[0]);
-        setLoading(false);
+        // setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching courses:", error);
@@ -77,11 +77,11 @@ const Page = () => {
           ) : (
             <>
               <DashBoardHeader
-                courseId={selectedCourse?.courseId || ""}
+                courseId={selectedCourse?.courseId || "Course Name"}
                 heading={"Course Details"}
                 loading={false}
                 noOfVideos={selectedCourse?.noOfVideos || 0}
-                courseName={selectedCourse?.title || ""}
+                courseName={selectedCourse?.title || "No Course"}
               />
               <DashboardVideoLister />
             </>
