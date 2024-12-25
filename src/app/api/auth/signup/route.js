@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 
 export async function POST(req) {
   try {
-    const { username, email, password, roles } = await req.json();
+    const { username, email, password } = await req.json();
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword, roles });
+    const newUser = new User({ username, email, password: hashedPassword, roles:["user","admin"] });
     await newUser.save();
 
     return new Response(JSON.stringify({ message: 'User created successfully' }), {

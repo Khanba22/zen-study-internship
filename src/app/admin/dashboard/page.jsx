@@ -1,9 +1,10 @@
 "use client";
+import AuthContext from "@/contexts/AuthContext";
 import DashBoardHeader from "@/UI/DashboardHeader";
 import DashboardSideBar from "@/UI/DashboardSidebar";
 import DashboardVideoLister from "@/UI/DashboardVideoLister";
-import { Playlist } from "@/UI/PlayList";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
 
 const Page = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,21 +12,34 @@ const Page = () => {
   const [courseVideos, setCourseVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
+  const { auth } = useContext(AuthContext);
+  const { isAuthenticated, user } = auth || {}; // Safely destructuring
+  const [rendered, setRendered] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    // setLoading(true);
+    if (auth && isAuthenticated && user) {
+      if (user.roles.includes("admin")) {
+        setRendered(true);
+      } else {
+        router.push("/admin/login");
+      }
+    }
+    console.log("User:", user, "IsAuthenticated:", isAuthenticated);
+  }, [auth, isAuthenticated, user, router]);
+
+  useEffect(() => {
     setText("Loading courses...");
     fetch("/api/courses")
       .then((response) => response.json())
       .then((data) => {
         setSelectedCourse(data[0]);
-        // setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching courses:", error);
         setText("Error fetching courses");
       });
-  }, [selectedCourse]);
+  }, []);
 
   let touchStartX = 0;
   let touchEndX = 0;
@@ -44,6 +58,10 @@ const Page = () => {
       setIsSidebarOpen(true);
     }
   };
+
+  if (!isAuthenticated) {
+    return null; // Prevent rendering if not authenticated
+  }
 
   return (
     <div
