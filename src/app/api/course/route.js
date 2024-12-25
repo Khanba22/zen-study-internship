@@ -1,5 +1,5 @@
 import Course from '@/database/models/Course';
-import { authenticate, authorize } from '@/utils/auth';
+import { authenticate, authorize } from '@/app/utils/auth';
 
 export async function GET(req) {
   try {
