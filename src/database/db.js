@@ -1,15 +1,22 @@
-import mongoose from "mongoose";
+import AWS from "aws-sdk";
 
+// Configure the AWS SDK
+AWS.config.update({
+  region: "ap-south-1", // Replace with your region
+  accessKeyId: "AKIARHQBNV67Y6ZSJBHW", // Replace with your access key ID
+  secretAccessKey: "lTej5+X3At06+/77mWjEhf8KGYymZx14VOXPM5Ub", // Replace with your secret access key
+});
 
-const connectToMongoDB = async () => {
+const dynamoDB = new AWS.DynamoDB.DocumentClient();
+
+const connectToDynamoDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/zenstudy");
-    console.log("Connected to MongoDB");
+    // Test the connection by listing tables
+    const tables = await dynamoDB.listTables().promise();
+    console.log("Connected to DynamoDB. Tables:", tables.TableNames);
   } catch (error) {
-    console.error("Error connecting to MongoDB: ", error);
+    console.error("Error connecting to DynamoDB: ", error);
   }
-}
+};
 
-export default connectToMongoDB;
- 
-//  Now, we can import the  connectToMongoDB  function in our  index.ts  file and call it to connect to the MongoDB database.
+export { dynamoDB, connectToDynamoDB };

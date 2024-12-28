@@ -1,40 +1,47 @@
-import connectToMongoDB from "@/database/db";
-import User from "@/database/models/User";
+import { dynamoDB } from "@/database/db";
 import bcrypt from "bcrypt";
-import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+
+const SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 export async function POST(req) {
   try {
-    await connectToMongoDB();
-    const { username, password } = await req.json();
-    const admin = await User.findOne({ username });
-    console.log(admin);
-    if (!admin || !admin.roles.includes("admin")) {
-      return NextResponse.json(
-        { message: "Admin not found" },
-        { status: 404 }
-      );
+    const { email, password } = await req.json();
+
+    // Scan the table to find the user by email
+    const params = {
+      TableName: "Users", // Replace with your DynamoDB table name
+      FilterExpression: "email = :email",
+      ExpressionAttributeValues: {
+        ":email": email,
+      },
+    };
+
+    const result = await dynamoDB.scan(params).promise();
+    const user = result.Items[0];
+
+    if (!user) {
+      return new Response(JSON.stringify({ message: "User not found" }), {
+        status: 404,
+      });
     }
 
-
-
-    const isValid = await bcrypt.compare(password, admin.password);
+    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return new NextResponse.json(
-        { message: "Invalid password" },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ message: "Invalid credentials" }), {
+        status: 401,
+      });
     }
-    const token = 1234567890;
-    // const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
-    //   expiresIn: "1h",
-    // });
 
-    return NextResponse.json({ token, user: admin });
+    // Create a JWT token
+    const token = jwt.sign({ id: user.id, roles: user.roles }, SECRET, {
+      expiresIn: "1h",
+    });
+
+    return new Response(JSON.stringify({ token }), { status: 200 });
   } catch (err) {
-    console.error("Admin login failed:", err);
-    return NextResponse.json(
-      { message: "Internal server error" }
-    );
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 400,
+    });
   }
 }
