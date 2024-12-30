@@ -22,7 +22,7 @@ const WideVinePlayer = () => {
         },
       },
     });
-
+    // Random Change in WideWirePlayer
     player
       .load(manifestUrl)
       .then(() => console.log("Video loaded successfully!"))
