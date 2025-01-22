@@ -1,36 +1,57 @@
 "use client";
+
 import React, { useEffect, useRef } from "react";
-import shaka from "shaka-player";
+import dynamic from "next/dynamic";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 const WideVinePlayer = () => {
   const videoRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
-    if (!(typeof window !== "undefined" && typeof navigator !== "undefined")) {
-      return;
-    }
+    // Dynamically import shaka-player only on client side
+    const loadShaka = async () => {
+      try {
+        const shaka = (await import("shaka-player")).default;
 
-    const manifestUrl =
-      "https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine/dash.mpd"; // Public Widevine test stream
+        // Install polyfills
+        await shaka.Player.probeSupport();
 
-    const player = new shaka.Player(videoRef.current);
 
-    player.configure({
-      drm: {
-        servers: {
-          "com.widevine.alpha": "https://cwip-shaka-proxy.appspot.com/no_auth", // Public test license server
-        },
-      },
-    });
-    // Random Change in WideWirePlayer
-    player
-      .load(manifestUrl)
-      .then(() => console.log("Video loaded successfully!"))
-      .catch((error) => console.error("Failed to load video:", error));
+        const fetchManifestUrl = async () => {
+          return `https://awsnewpop.s3.ap-south-1.amazonaws.com/NewVideo.mp4`;
+        };
 
+
+        // Initialize player
+        if (videoRef.current && !playerRef.current) {
+          playerRef.current = new shaka.Player(videoRef.current);
+
+          // Add error handler
+          playerRef.current.addEventListener("error", (error) => {
+            console.error("Error code", error.code, "object", error);
+          });
+
+          try {
+            const manifestUrl = await fetchManifestUrl();
+            await playerRef.current.load(manifestUrl);
+            console.log("Video loaded successfully!");
+          } catch (error) {
+            console.error("Failed to load video:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load Shaka Player:", error);
+      }
+    };
+
+    loadShaka();
+
+    // Cleanup
     return () => {
-      if (player) {
-        player.destroy();
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
       }
     };
   }, []);
@@ -45,84 +66,7 @@ const WideVinePlayer = () => {
   );
 };
 
-export default WideVinePlayer;
-
-// "use client";
-// import React, { useEffect, useRef } from "react";
-// import shaka from "shaka-player";
-// import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-
-// const WideVinePlayer = () => {
-//   const videoRef = useRef(null);
-
-//   useEffect(() => {
-//     if (!(typeof window !== "undefined" && typeof navigator !== "undefined")) {
-//       return;
-//     }
-
-//     const region = "us-west-2"; // Replace with your AWS region
-//     const bucketName = "your-s3-bucket-name"; // Replace with your bucket name
-//     const objectKey = "path/to/your/video/manifest.mpd"; // Replace with the path to your manifest file
-//     const drmLicenseUrl = "https://your-license-server-url"; // Replace with your license server URL
-
-//     const s3Client = new S3Client({ region });
-
-//     const fetchManifestUrl = async () => {
-//       try {
-//         const command = new GetObjectCommand({
-//           Bucket: bucketName,
-//           Key: objectKey,
-//         });
-//         const response = await s3Client.send(command);
-//         return URL.createObjectURL(await response.Body.blob());
-//       } catch (error) {
-//         console.error("Failed to fetch manifest URL from S3:", error);
-//         throw error;
-//       }
-//     };
-
-//     const initPlayer = async () => {
-//       const manifestUrl = await fetchManifestUrl();
-
-//       const player = new shaka.Player(videoRef.current);
-
-//       player.configure({
-//         drm: {
-//           servers: {
-//             "com.widevine.alpha": drmLicenseUrl,
-//           },
-//         },
-//       });
-
-//       player
-//         .load(manifestUrl)
-//         .then(() => console.log("Video loaded successfully!"))
-//         .catch((error) => console.error("Failed to load video:", error));
-
-//       return player;
-//     };
-
-//     let playerInstance;
-
-//     initPlayer().then((player) => {
-//       playerInstance = player;
-//     });
-
-//     return () => {
-//       if (playerInstance) {
-//         playerInstance.destroy();
-//       }
-//     };
-//   }, []);
-
-//   return (
-//     <video
-//       ref={videoRef}
-//       controls
-//       autoPlay
-//       className="w-full aspect-video bg-black rounded-lg"
-//     />
-//   );
-// };
-
-// export default WideVinePlayer;
+// Export with dynamic import and disabled SSR
+export default dynamic(() => Promise.resolve(WideVinePlayer), {
+  ssr: false,
+});

@@ -13,14 +13,14 @@ export const AuthProvider = ({ children }) => {
     token: null,
   });
 
-  const login = async ({ username, password }) => {
+  const login = async ({ email, password }) => {
     try {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
