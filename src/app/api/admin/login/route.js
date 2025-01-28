@@ -1,4 +1,5 @@
 import { dynamoDB } from "@/database/db";
+import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -17,7 +18,7 @@ export async function POST(req) {
       },
     };
 
-    const result = await dynamoDB.scan(params).promise();
+    const result = await dynamoDB.send(new ScanCommand(params));
     const user = result.Items[0];
 
     if (!user) {

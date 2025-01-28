@@ -1,29 +1,21 @@
 // Import required modules
-import AWS from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
 
-// Configure the AWS SDK
-AWS.config.update({
+// Configure the AWS SDK v3 client
+const client = new DynamoDBClient({
   region: "ap-south-1", // Replace with your region
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID, // Use environment variables without NEXT_PUBLIC prefix
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // Use private environment variables
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
-console.log(process.env.AWS_ACCESS_KEY_ID);
-// Create a DynamoDB DocumentClient instance
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
-// Function to test the DynamoDB connection
-const connectToDynamoDB = async () => {
-  try {
-    // List DynamoDB tables to confirm connection
-    const tables = await dynamoDB.listTables().promise();
-    console.log("Connected to DynamoDB. Tables:", tables.TableNames);
-  } catch (error) {
-    console.error("Error connecting to DynamoDB:", error);
-  }
-};
+// Create a DynamoDB DocumentClient for easier operations
+const dynamoDB = DynamoDBDocumentClient.from(client);
 
-export { dynamoDB, connectToDynamoDB };
+export { dynamoDB };
