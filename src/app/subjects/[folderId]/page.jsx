@@ -27,7 +27,7 @@ export default function YouTubePlayer() {
     });
 
     try {
-      const response = await fetch("/api/video/upload", {
+      const response = await fetch("/api/course/200/videos", {
         method: "POST",
         body: formData,
       });
