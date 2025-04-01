@@ -27,7 +27,7 @@ export default function YouTubePlayer() {
     });
 
     try {
-      const response = await fetch("/api/course/200/videos", {
+      const response = await fetch("/api/course/MyNewCourse/chapter/chapterName/video", {
         method: "POST",
         body: formData,
       });
@@ -35,6 +35,7 @@ export default function YouTubePlayer() {
         console.log("Videos uploaded successfully");
         setShowUploadPopup(false);
       } else {
+        console.log(response);
         console.error("Failed to upload videos");
       }
     } catch (error) {
